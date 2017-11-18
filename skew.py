@@ -3,7 +3,7 @@ import re
 import os
 import argparse
 
-parser = argparse.ArgumentParser(description='gskewer is a tool to skew the coordinates in a G-code file.')                                               
+parser = argparse.ArgumentParser(description='gskewer is a tool to skew the coordinates in a G-code file.')
 
 xygroup = parser.add_mutually_exclusive_group(required=True)
 xygroup.add_argument('--xyerr', type=float, help='Error in the X-axis for the XY pair in mm.')
@@ -40,7 +40,7 @@ else:
 
 if not xytan == 0:
 	print('The XY error is set to', xytan,'degrees')
-	
+
 if args.yztan:
 	yztan = args.yztan
 elif args.yzerr:
@@ -60,13 +60,13 @@ else:
 
 if not zxtan == 0:
 	print('The ZX error is set to', zxtan,'degrees')
-	
-if xytan == 0.0 and yztan == 0.0 and zxtan == 0.0: 
+
+if xytan == 0.0 and yztan == 0.0 and zxtan == 0.0:
 	print('No skew parameters provided. Nothing will be done.')
-	
+
 filename = args.file
 
-outname = 'skewed-'+filename
+outname = re.sub(r'.gcode', '-skewed.gcode', filename)
 
 xin = 0.0
 yin = 0.0
