@@ -102,7 +102,8 @@ with open(filename,'r') as infile:
             # calculate the corrected/skewed XYZ coordinates
             xout = round(xin-yin*xytan,3)
             yout = round(yin-zin*yztan,3)
-            zout = round(zin-xin*zxtan,3)
+            xout = round(xout-zin*zxtan,3)
+            zout = zin # Z coodinates must remain the same to prevent layers being tilted!
 
             lineout = line
             print('old line:', lineout)
