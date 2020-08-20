@@ -126,19 +126,19 @@ with open(filename, 'r') as infile:
             print('line was a G0/G1 command!')
 
             # load the incoming X coordinate into a variable. Previous value will be used if new value is not found.
-            xsrch = re.search(r'[xX]\d*\.*\d*', line, re.I)
+            xsrch = re.search(r'[xX]-?\d*\.*\d*', line, re.I)
             if xsrch:  # if an X value is found
                 # Strip the letter from the coordinate.
                 xin = float(re.sub(r'[xX]', '', xsrch.group()))
 
             # load the incoming Y coordinate into a variable. Previous value will be used if new value is not found.
-            ysrch = re.search(r'[yY]\d*\.*\d*', line, re.I)
+            ysrch = re.search(r'[yY]-?\d*\.*\d*', line, re.I)
             if ysrch:
                 # Strip the letter from the coordinate.
                 yin = float(re.sub(r'[yY]', '', ysrch.group()))
 
             # load the incoming Z coordinate into a variable. Previous value will be used if new value is not found.
-            zsrch = re.search(r'[zZ]\d*\.*\d*', line, re.I)
+            zsrch = re.search(r'[zZ]-?\d*\.*\d*', line, re.I)
             if zsrch:
                 # Strip the letter from the coordinate.
                 zin = float(re.sub(r'[zZ]', '', zsrch.group()))
@@ -154,13 +154,13 @@ with open(filename, 'r') as infile:
             print('old line:', lineout)
 
             if xsrch:
-                lineout = re.sub(r'[xX]\d*\.*\d*', 'X' + str(xout), lineout)
+                lineout = re.sub(r'[xX]-?\d*\.*\d*', 'X' + str(xout), lineout)
 
             if ysrch:
-                lineout = re.sub(r'[yY]\d*\.*\d*', 'Y' + str(yout), lineout)
+                lineout = re.sub(r'[yY]-?\d*\.*\d*', 'Y' + str(yout), lineout)
 
             if zsrch:
-                lineout = re.sub(r'[zZ]\d*\.*\d*', 'Z' + str(zout), lineout)
+                lineout = re.sub(r'[zZ]-?\d*\.*\d*', 'Z' + str(zout), lineout)
 
             print('new line: ', lineout)
             outfile.write(lineout)
