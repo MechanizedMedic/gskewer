@@ -14,9 +14,9 @@ xygroup.add_argument(
     help='Error in the X-axis for the XY pair in mm.'
 )
 xygroup.add_argument(
-    '--xytan',
+    '--xyskew',
     type=float,
-    help='The error in the XY pair as a tangent. (xyerr/xylen)'
+    help='The skew factor, aka error in the XY pair (xyerr/xylen)'
 )
 
 
@@ -27,9 +27,9 @@ yzgroup.add_argument(
     help='Error in the Y-axis for the YZ pair in mm.'
 )
 yzgroup.add_argument(
-    '--yztan',
+    '--yzskew',
     type=float,
-    help='The error in the YZ pair as a tangent. (yzerr/yzlen)'
+    help='The skew factor, aka error in the yz pair (yzerr/yzlen).'
 )
 
 
@@ -40,9 +40,9 @@ zxgroup.add_argument(
     help='Error in the Z-axis for the ZX pair in mm.'
 )
 zxgroup.add_argument(
-    '--zxtan',
+    '--zxskew',
     type=float,
-    help='The error in the ZX pair as a tangent. (zxerr/zxlen)'
+    help='The skew factor, aka error in the ZX pair (zxerr/zxlen).'
 )
 
 
@@ -84,37 +84,37 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-if args.xytan:
-    xytan = args.xytan
+if args.xyskew:
+    xyskew = args.xyskew
 elif args.xyerr:
-    xytan = args.xyerr / args.xylen
+    xyskew = args.xyerr / args.xylen
 else:
-    xytan = 0.0
+    xyskew = 0.0
 
-if not xytan == 0:
-    print('The XY error is set to', xytan, 'degrees')
+if not xyskew == 0:
+    print('The XY error is set to', xyskew)
 
-if args.yztan:
-    yztan = args.yztan
+if args.yzskew:
+    yzskew = args.yzskew
 elif args.yzerr:
-    yztan = args.yzerr / args.yzlen
+    yzskew = args.yzerr / args.yzlen
 else:
-    yztan = 0.0
+    yzskew = 0.0
 
-if not yztan == 0:
-    print('The YZ error is set to', yztan, 'degrees')
+if not yzskew == 0:
+    print('The YZ error is set to', yzskew)
 
-if args.zxtan:
-    zxtan = args.zxtan
+if args.zxskew:
+    zxskew = args.zxskew
 elif args.zxerr:
-    zxtan = args.zxerr / args.zxlen
+    zxskew = args.zxerr / args.zxlen
 else:
-    zxtan = 0.0
+    zxskew = 0.0
 
-if not zxtan == 0:
-    print('The ZX error is set to', zxtan, 'degrees')
+if not zxskew == 0:
+    print('The ZX error is set to', zxskew)
 
-if xytan == 0.0 and yztan == 0.0 and zxtan == 0.0:
+if xyskew == 0.0 and yzskew == 0.0 and zxskew == 0.0:
     print('No skew parameters provided. Nothing will be done.')
 
 filename = args.file
@@ -156,9 +156,9 @@ with open(outname, 'a') as outfile:
                     zin = float(re.sub(r'[zZ]', '', zsrch.group()))
 
                 # calculate the corrected/skewed XYZ coordinates
-                xout = round(xin - yin * xytan, 3)
-                yout = round(yin - zin * yztan, 3)
-                xout = round(xout - zin * zxtan, 3)
+                xout = round(xin - yin * xyskew, 3)
+                yout = round(yin - zin * yzskew, 3)
+                xout = round(xout - zin * zxskew, 3)
                 # Z coodinates must remain the same to prevent layers being tilted!
                 zout = zin
 
