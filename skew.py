@@ -68,7 +68,12 @@ parser.add_argument(
 # input file setup. name of input file is not in "args.file"
 parser.add_argument("file", type=str)
 
-# parser.add_argument('-v', action='count', help='Increases terminal output verbosity. More V's will increase verbosity' )
+parser.add_argument(
+    '-v',
+    '--verbose',
+    action='count',
+     help='Increases terminal output verbosity.'
+)
 
 args = parser.parse_args()
 
@@ -123,7 +128,8 @@ with open(filename, 'r') as infile:
         # Check that the current 'line' is a move, if so the line is processed
         gmatch = re.match(r'G[0-1]', line, re.I)
         if gmatch:
-            print('line was a G0/G1 command!')
+            if args.verbose:
+                print('line was a G0/G1 command!')
 
             # load the incoming X coordinate into a variable. Previous value will be used if new value is not found.
             xsrch = re.search(r'[xX]-?\d*\.*\d*', line, re.I)
@@ -151,7 +157,8 @@ with open(filename, 'r') as infile:
             zout = zin
 
             lineout = line
-            print('old line:', lineout)
+            if args.verbose:
+                print('old line:', lineout)
 
             if xsrch:
                 lineout = re.sub(r'[xX]-?\d*\.*\d*', 'X' + str(xout), lineout)
@@ -162,8 +169,10 @@ with open(filename, 'r') as infile:
             if zsrch:
                 lineout = re.sub(r'[zZ]-?\d*\.*\d*', 'Z' + str(zout), lineout)
 
-            print('new line: ', lineout)
+            if args.verbose:
+                print('new line: ', lineout)
             outfile.write(lineout)
         else:
-            print('Skipping, not a movement.', line)
+            if args.verbose:
+                print('Skipping, not a movement.', line)
             outfile.write(line)
