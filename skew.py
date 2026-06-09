@@ -69,6 +69,13 @@ parser.add_argument(
 parser.add_argument("file", type=str)
 
 parser.add_argument(
+    '-o',
+    '--overwrite',
+    action='store_true',
+    help='Overwrite the input file with the skewed version. Useful for slicer post-processing.'
+)
+
+parser.add_argument(
     '-v',
     '--verbose',
     action='count',
@@ -121,58 +128,60 @@ zin = 0.0
 if os.path.isfile(outname):
     os.remove(outname)
 
-outfile = open(outname, 'a')
+with open(outname, 'a') as outfile:
+    with open(filename, 'r') as infile:
+        for line in infile:
+            # Check that the current 'line' is a move, if so the line is processed
+            gmatch = re.match(r'G[0-1]', line, re.I)
+            if gmatch:
+                if args.verbose:
+                    print('line was a G0/G1 command!')
 
-with open(filename, 'r') as infile:
-    for line in infile:
-        # Check that the current 'line' is a move, if so the line is processed
-        gmatch = re.match(r'G[0-1]', line, re.I)
-        if gmatch:
-            if args.verbose:
-                print('line was a G0/G1 command!')
+                # load the incoming X coordinate into a variable. Previous value will be used if new value is not found.
+                xsrch = re.search(r'[xX]-?\d*\.*\d*', line, re.I)
+                if xsrch:  # if an X value is found
+                    # Strip the letter from the coordinate.
+                    xin = float(re.sub(r'[xX]', '', xsrch.group()))
 
-            # load the incoming X coordinate into a variable. Previous value will be used if new value is not found.
-            xsrch = re.search(r'[xX]-?\d*\.*\d*', line, re.I)
-            if xsrch:  # if an X value is found
-                # Strip the letter from the coordinate.
-                xin = float(re.sub(r'[xX]', '', xsrch.group()))
+                # load the incoming Y coordinate into a variable. Previous value will be used if new value is not found.
+                ysrch = re.search(r'[yY]-?\d*\.*\d*', line, re.I)
+                if ysrch:
+                    # Strip the letter from the coordinate.
+                    yin = float(re.sub(r'[yY]', '', ysrch.group()))
 
-            # load the incoming Y coordinate into a variable. Previous value will be used if new value is not found.
-            ysrch = re.search(r'[yY]-?\d*\.*\d*', line, re.I)
-            if ysrch:
-                # Strip the letter from the coordinate.
-                yin = float(re.sub(r'[yY]', '', ysrch.group()))
+                # load the incoming Z coordinate into a variable. Previous value will be used if new value is not found.
+                zsrch = re.search(r'[zZ]-?\d*\.*\d*', line, re.I)
+                if zsrch:
+                    # Strip the letter from the coordinate.
+                    zin = float(re.sub(r'[zZ]', '', zsrch.group()))
 
-            # load the incoming Z coordinate into a variable. Previous value will be used if new value is not found.
-            zsrch = re.search(r'[zZ]-?\d*\.*\d*', line, re.I)
-            if zsrch:
-                # Strip the letter from the coordinate.
-                zin = float(re.sub(r'[zZ]', '', zsrch.group()))
+                # calculate the corrected/skewed XYZ coordinates
+                xout = round(xin - yin * xytan, 3)
+                yout = round(yin - zin * yztan, 3)
+                xout = round(xout - zin * zxtan, 3)
+                # Z coodinates must remain the same to prevent layers being tilted!
+                zout = zin
 
-            # calculate the corrected/skewed XYZ coordinates
-            xout = round(xin - yin * xytan, 3)
-            yout = round(yin - zin * yztan, 3)
-            xout = round(xout - zin * zxtan, 3)
-            # Z coodinates must remain the same to prevent layers being tilted!
-            zout = zin
+                lineout = line
+                if args.verbose:
+                    print('old line:', lineout)
 
-            lineout = line
-            if args.verbose:
-                print('old line:', lineout)
+                if xsrch:
+                    lineout = re.sub(r'[xX]-?\d*\.*\d*', 'X' + str(xout), lineout)
 
-            if xsrch:
-                lineout = re.sub(r'[xX]-?\d*\.*\d*', 'X' + str(xout), lineout)
+                if ysrch:
+                    lineout = re.sub(r'[yY]-?\d*\.*\d*', 'Y' + str(yout), lineout)
 
-            if ysrch:
-                lineout = re.sub(r'[yY]-?\d*\.*\d*', 'Y' + str(yout), lineout)
+                if zsrch:
+                    lineout = re.sub(r'[zZ]-?\d*\.*\d*', 'Z' + str(zout), lineout)
 
-            if zsrch:
-                lineout = re.sub(r'[zZ]-?\d*\.*\d*', 'Z' + str(zout), lineout)
+                if args.verbose:
+                    print('new line: ', lineout)
+                outfile.write(lineout)
+            else:
+                if args.verbose:
+                    print('Skipping, not a movement.', line)
+                outfile.write(line)
 
-            if args.verbose:
-                print('new line: ', lineout)
-            outfile.write(lineout)
-        else:
-            if args.verbose:
-                print('Skipping, not a movement.', line)
-            outfile.write(line)
+if args.overwrite:
+    os.replace(outname, filename)
