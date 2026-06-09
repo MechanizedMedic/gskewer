@@ -29,20 +29,20 @@ yzgroup.add_argument(
 yzgroup.add_argument(
     '--yzskew',
     type=float,
-    help='The skew factor, aka error in the yz pair (yzerr/yzlen).'
+    help='The skew factor, aka error in the YZ pair (yzerr/yzlen).'
 )
 
 
-zxgroup = parser.add_mutually_exclusive_group(required=True)
-zxgroup.add_argument(
-    '--zxerr',
+xzgroup = parser.add_mutually_exclusive_group(required=True)
+xzgroup.add_argument(
+    '--xzerr',
     type=float,
-    help='Error in the Z-axis for the ZX pair in mm.'
+    help='Error in the Z-axis for the XZ pair in mm.'
 )
-zxgroup.add_argument(
-    '--zxskew',
+xzgroup.add_argument(
+    '--xzskew',
     type=float,
-    help='The skew factor, aka error in the ZX pair (zxerr/zxlen).'
+    help='The skew factor, aka error in the XZ pair (xzerr/xzlen).'
 )
 
 
@@ -59,10 +59,10 @@ parser.add_argument(
     help='Length of the side where the YZ error measurement was taken. This is optional, default value is 100mm'
 )
 parser.add_argument(
-    '--zxlen',
+    '--xzlen',
     default=100,
     type=int,
-    help='Length of the side where the ZX error measurement was taken. This is optional, default value is 100mm'
+    help='Length of the side where the XZ error measurement was taken. This is optional, default value is 100mm'
 )
 
 # input file setup. name of input file is not in "args.file"
@@ -92,7 +92,17 @@ else:
     xyskew = 0.0
 
 if not xyskew == 0:
-    print('The XY error is set to', xyskew)
+    print('The XY skew is set to', xyskew)
+
+if args.xzskew:
+    xzskew = args.xzskew
+elif args.xzerr:
+    xzskew = args.xzerr / args.xzlen
+else:
+    xzskew = 0.0
+
+if not xzskew == 0:
+    print('The XZ skew is set to', xzskew)
 
 if args.yzskew:
     yzskew = args.yzskew
@@ -102,20 +112,12 @@ else:
     yzskew = 0.0
 
 if not yzskew == 0:
-    print('The YZ error is set to', yzskew)
+    print('The YZ skew is set to', yzskew)
 
-if args.zxskew:
-    zxskew = args.zxskew
-elif args.zxerr:
-    zxskew = args.zxerr / args.zxlen
-else:
-    zxskew = 0.0
 
-if not zxskew == 0:
-    print('The ZX error is set to', zxskew)
-
-if xyskew == 0.0 and yzskew == 0.0 and zxskew == 0.0:
+if xyskew == 0.0 and yzskew == 0.0 and xzskew == 0.0:
     print('No skew parameters provided. Nothing will be done.')
+    exit(0)
 
 filename = args.file
 
@@ -158,7 +160,7 @@ with open(outname, 'a') as outfile:
                 # calculate the corrected/skewed XYZ coordinates
                 xout = round(xin - yin * xyskew, 3)
                 yout = round(yin - zin * yzskew, 3)
-                xout = round(xout - zin * zxskew, 3)
+                xout = round(xout - zin * xzskew, 3)
                 # Z coodinates must remain the same to prevent layers being tilted!
                 zout = zin
 
