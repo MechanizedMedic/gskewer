@@ -28,7 +28,7 @@ The initial six measurements can be simplified to a skew argument by dividing th
 # Using Gskewer
 `gskewer [arguements] file`
 
-Gskewer will automatically generate a new gcode file with "-skewed" added to the file name. If the output file name already exists gskewer will delete the existing file and write a new one.
+Gskewer will automatically generate a new gcode file with "-gskewer-xz0.0,xz0.0,yz0.0" added to the file name (with the actual values appended). If the output file name already exists gskewer will overwrite the existing file. If --overwrite is specified, the *original* file will be replaced.
 
 ### Examples
 

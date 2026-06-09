@@ -121,7 +121,7 @@ if xyskew == 0.0 and yzskew == 0.0 and xzskew == 0.0:
 
 filename = args.file
 
-outname = re.sub(r'.gcode', '-skewed.gcode', filename)
+outname = re.sub(r'.gcode', f'-gskewer-xy{xyskew},xz{xzskew},yz{yzskew}.gcode', filename)
 
 xin = 0.0
 yin = 0.0
