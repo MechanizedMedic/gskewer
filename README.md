@@ -1,5 +1,5 @@
 # About Gskewer
-Gskewer is a tool to skew transform gcode file coordinates to account for axis misalignment of a 3D printer.
+Gskewer is a tool to skew transform gcode file coordinates to account for axis misalignment and scale misconfiguration of a 3D printer.
 
 In order to use Gskewer you will need to print a test cube, take accurate measurements of the cube, then input those measurements as arguments for Gskewer. You can also use Calilantern or Califlower, and use the SKEW_FACTORs generated for Marlin or RepRap firmwares.
 
@@ -63,6 +63,12 @@ Gskewer will automatically generate a new gcode file with "-gskewer-xz0.0,xz0.0,
 
 `--xzskew`
 	The skew factor, aka error in the XZ pair (xzerr/xzlen).
+
+`--xscale`
+    Shrink or expand X axis. This is optional, default value is 100.0
+
+`--yscale`
+    Shrink or expand Y axis. This is optional, default value is 100.0
 
 `--overwrite`
     Overwrite the input file with the skewed version. Useful for slicer post-processing.

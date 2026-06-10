@@ -65,6 +65,21 @@ parser.add_argument(
     help='Length of the side where the XZ error measurement was taken. This is optional, default value is 100mm'
 )
 
+
+parser.add_argument(
+    '--xscale',
+    default=100.0,
+    type=float,
+    help='Shrink or expand X axis. This is optional, default value is 100.0'
+)
+
+parser.add_argument(
+    '--yscale',
+    default=100.0,
+    type=float,
+    help='Shrink or expand Y axis. This is optional, default value is 100.0'
+)
+
 # input file setup. name of input file is not in "args.file"
 parser.add_argument("file", type=str)
 
@@ -114,14 +129,19 @@ else:
 if not yzskew == 0:
     print('The YZ skew is set to', yzskew)
 
+xscale = args.xscale
+yscale = args.yscale
+print(f"X scale: {xscale}")
+print(f"Y scale: {yscale}")
 
 if xyskew == 0.0 and yzskew == 0.0 and xzskew == 0.0:
-    print('No skew parameters provided. Nothing will be done.')
-    exit(0)
+    print('No skew parameters provided.')
+elif xscale == 100.0 and yscale == 100.0:
+    print("No scale arguments provided")
 
 filename = args.file
 
-outname = re.sub(r'.gcode', f'-gskewer-xy{xyskew},xz{xzskew},yz{yzskew}.gcode', filename)
+outname = re.sub(r'.gcode', f'-gskewer-xy{xyskew},xz{xzskew},yz{yzskew},x{xscale},y{yscale}.gcode', filename)
 
 xin = 0.0
 yin = 0.0
@@ -158,9 +178,9 @@ with open(outname, 'a') as outfile:
                     zin = float(re.sub(r'[zZ]', '', zsrch.group()))
 
                 # calculate the corrected/skewed XYZ coordinates
-                xout = round(xin - yin * xyskew, 3)
-                yout = round(yin - zin * yzskew, 3)
-                xout = round(xout - zin * xzskew, 3)
+                xout = round((xin - yin * xyskew), 3)
+                yout = round((yin * yscale / 100) - (zin * yzskew), 3)
+                xout = round((xout  * xscale / 100) - (zin * xzskew), 3)
                 # Z coodinates must remain the same to prevent layers being tilted!
                 zout = zin
 
