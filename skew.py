@@ -178,9 +178,8 @@ with open(outname, 'a') as outfile:
                     zin = float(re.sub(r'[zZ]', '', zsrch.group()))
 
                 # calculate the corrected/skewed XYZ coordinates
-                xout = round((xin - yin * xyskew), 3)
+                xout = round((xin * xscale / 100) - (yin * xyskew) - (zin * xzskew), 3)
                 yout = round((yin * yscale / 100) - (zin * yzskew), 3)
-                xout = round((xout  * xscale / 100) - (zin * xzskew), 3)
                 # Z coodinates must remain the same to prevent layers being tilted!
                 zout = zin
 
